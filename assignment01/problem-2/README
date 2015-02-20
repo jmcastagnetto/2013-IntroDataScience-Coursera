@@ -1,0 +1,2 @@
+To run the script
+python tweet_sentiment.py AFINN-111.txt ../problem1/output-20lines.txt 

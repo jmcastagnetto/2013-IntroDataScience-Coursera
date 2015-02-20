@@ -1,0 +1,534 @@
+
+> train <- 
++   read.table("/home/jesus/devel/bitbucket/introdatascience/peer_review-kaggle_titanic/train.csv",
++    header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+
+> library(relimp, pos=4)
+
+> showData(train, placement='-20+200', font=getRcmdr('logFont'), maxwidth=80, 
++   maxheight=30, suppress.X11.warnings=FALSE)
+
+> save("train", 
++   file="/home/jesus/devel/bitbucket/introdatascience/peer_review-kaggle_titanic/train.RData")
+
+> scatterplotMatrix(~age+fare+parch+pclass+sibsp+survived | sex, reg.line=lm, 
++   smooth=TRUE, spread=TRUE, span=0.5, diagonal= 'boxplot', by.groups=TRUE, 
++   data=train)
+
+> library(lattice, pos=4)
+
+> xyplot(survived ~ age + fare + parch + pclass + sibsp |  embarked + sex,
++  
++   outer=TRUE, layout=c( 8 * 5 , 1 ) , between=list(x=c( 0,0,0,0,0,0,0,1,0,0,0,
++   0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 ), y=1), pch=16,
++  
++   auto.key=list(border=TRUE), par.settings = simpleTheme(pch=16), 
++   scales=list(x=list(relation='same'), y=list(relation='same')),
++  data=train)
+
+> library(ggplot2, pos=4)
+
+> GLM.1 <- glm(survived ~ age + embarked + fare + parch + pclass + sex + 
++   sibsp, family=binomial(logit), data=train)
+
+> summary(GLM.1)
+
+Call:
+glm(formula = survived ~ age + embarked + fare + parch + pclass + 
+    sex + sibsp, family = binomial(logit), data = train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7233  -0.6439  -0.3772   0.6288   2.4457  
+
+Coefficients:
+                Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    17.894850 607.855474   0.029  0.97651    
+age            -0.043350   0.008232  -5.266 1.39e-07 ***
+embarked[T.C] -12.257443 607.855250  -0.020  0.98391    
+embarked[T.Q] -13.080988 607.855453  -0.022  0.98283    
+embarked[T.S] -12.658656 607.855228  -0.021  0.98339    
+fare            0.001432   0.002531   0.566  0.57165    
+parch          -0.060270   0.123900  -0.486  0.62666    
+pclass         -1.199251   0.164619  -7.285 3.22e-13 ***
+sex[T.male]    -2.638476   0.222256 -11.871  < 2e-16 ***
+sibsp          -0.363208   0.129017  -2.815  0.00487 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 964.52  on 713  degrees of freedom
+Residual deviance: 632.34  on 704  degrees of freedom
+  (177 observations deleted due to missingness)
+AIC: 652.34
+
+Number of Fisher Scoring iterations: 13
+
+
+> GLM.2 <- glm(survived ~ age + pclass + sex + 
++   sibsp, family=binomial(logit), data=train)
+
+> summary(GLM.2)
+
+Call:
+glm(formula = survived ~ age + pclass + sex + sibsp, family = binomial(logit), 
+    data = train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7714  -0.6445  -0.3836   0.6276   2.4585  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  5.600846   0.543441  10.306  < 2e-16 ***
+age         -0.044385   0.008155  -5.442 5.26e-08 ***
+pclass      -1.317398   0.140900  -9.350  < 2e-16 ***
+sex[T.male] -2.623483   0.214524 -12.229  < 2e-16 ***
+sibsp       -0.376119   0.121080  -3.106  0.00189 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 964.52  on 713  degrees of freedom
+Residual deviance: 636.72  on 709  degrees of freedom
+  (177 observations deleted due to missingness)
+AIC: 646.72
+
+Number of Fisher Scoring iterations: 5
+
+
+> Confint(GLM.1, level=0.95, type="LR")
+                   Estimate         2.5 %       97.5 % exp(Estimate)        2.5 %       97.5 %
+(Intercept)    17.894849682 -77.141270168           NA  5.910639e+07 3.147546e-34           NA
+age            -0.043349967  -0.059848010 -0.027524755  9.575762e-01 9.419077e-01 9.728506e-01
+embarked[T.C] -12.257443073            NA 83.050727375  4.749634e-06           NA 1.170773e+36
+embarked[T.Q] -13.080987805            NA 81.932411827  2.084487e-06           NA 3.826435e+35
+embarked[T.S] -12.658656455            NA 82.682228633  3.179914e-06           NA 8.099079e+35
+fare            0.001431586  -0.003242437  0.007020348  1.001433e+00 9.967628e-01 1.007045e+00
+parch          -0.060269766  -0.310850890  0.178755284  9.415105e-01 7.328231e-01 1.195728e+00
+pclass         -1.199250912  -1.526779950 -0.879699252  3.014199e-01 2.172340e-01 4.149077e-01
+sex[T.male]    -2.638476351  -3.085676633 -2.213050090  7.147008e-02 4.569910e-02 1.093666e-01
+sibsp          -0.363208369  -0.624330002 -0.117141688  6.954415e-01 5.356202e-01 8.894592e-01
+
+> oldpar <- par(oma=c(0,0,3,0), mfrow=c(2,2))
+
+> plot(GLM.1)
+
+> par(oldpar)
+
+> outlierTest(GLM.2)
+
+No Studentized residuals with Bonferonni p < 0.05
+Largest |rstudent|:
+     rstudent unadjusted p-value Bonferonni p
+298 -2.796732          0.0051622           NA
+
+> Confint(GLM.2, level=0.95, type="LR")
+              Estimate       2.5 %      97.5 % exp(Estimate)       2.5 %      97.5 %
+(Intercept)  5.6008462  4.56877277  6.70182493   270.6553299 96.42570059 813.8897647
+age         -0.0443847 -0.06073701 -0.02871785     0.9565859  0.94107070   0.9716906
+pclass      -1.3173981 -1.60095422 -1.04776701     0.2678313  0.20170396   0.3507200
+sex[T.male] -2.6234834 -3.05476185 -2.21256757     0.0725497  0.04713394   0.1094193
+sibsp       -0.3761192 -0.62152704 -0.14560851     0.6865205  0.53712360   0.8644961
+
+> anova(GLM.1, GLM.2, test="Chisq")
+Analysis of Deviance Table
+
+Model 1: survived ~ age + embarked + fare + parch + pclass + sex + sibsp
+Model 2: survived ~ age + pclass + sex + sibsp
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)
+1       704     632.34                     
+2       709     636.72 -5  -4.3763   0.4966
+
+> oldpar <- par(oma=c(0,0,3,0), mfrow=c(2,2))
+
+> plot(GLM.2)
+
+> par(oldpar)
+
+> stepwise(GLM.2, direction='backward/forward', criterion='BIC')
+
+Direction:  backward/forward
+Criterion:  BIC 
+
+Start:  AIC=669.57
+survived ~ age + pclass + sex + sibsp
+
+         Df Deviance    AIC
+<none>        636.72 669.57
+- sibsp   1   647.29 673.57
+- age     1   669.44 695.72
+- pclass  1   742.29 768.57
+- sex     1   823.84 850.12
+
+Call:  glm(formula = survived ~ age + pclass + sex + sibsp, family = binomial(logit), 
+    data = train)
+
+Coefficients:
+(Intercept)          age       pclass  sex[T.male]        sibsp  
+    5.60085     -0.04438     -1.31740     -2.62348     -0.37612  
+
+Degrees of Freedom: 713 Total (i.e. Null);  709 Residual
+  (177 observations deleted due to missingness)
+Null Deviance:	    964.5 
+Residual Deviance: 636.7 	AIC: 646.7 
+
+> summary(train)
+    survived          pclass                                         name         sex     
+ Min.   :0.0000   Min.   :1.000   Abbing, Mr. Anthony                  :  1   female:314  
+ 1st Qu.:0.0000   1st Qu.:2.000   Abbott, Mr. Rossmore Edward          :  1   male  :577  
+ Median :0.0000   Median :3.000   Abbott, Mrs. Stanton (Rosa Hunt)     :  1               
+ Mean   :0.3838   Mean   :2.309   Abelson, Mr. Samuel                  :  1               
+ 3rd Qu.:1.0000   3rd Qu.:3.000   Abelson, Mrs. Samuel (Hannah Wizosky):  1               
+ Max.   :1.0000   Max.   :3.000   Adahl, Mr. Mauritz Nils Martin       :  1               
+                                  (Other)                              :885               
+      age             sibsp           parch             ticket         fare       
+ Min.   :  0.42   Min.   :0.000   Min.   :0.0000   1601    :  7   Min.   :  0.00  
+ 1st Qu.: 20.12   1st Qu.:0.000   1st Qu.:0.0000   347082  :  7   1st Qu.:  7.91  
+ Median : 28.00   Median :0.000   Median :0.0000   CA. 2343:  7   Median : 14.45  
+ Mean   : 29.70   Mean   :0.523   Mean   :0.3816   3101295 :  6   Mean   : 32.20  
+ 3rd Qu.: 38.00   3rd Qu.:1.000   3rd Qu.:0.0000   347088  :  6   3rd Qu.: 31.00  
+ Max.   : 80.00   Max.   :8.000   Max.   :6.0000   CA 2144 :  6   Max.   :512.33  
+ NA's   :177.00                                    (Other) :852                   
+         cabin     embarked
+            :687    :  2   
+ B96 B98    :  4   C:168   
+ C23 C25 C27:  4   Q: 77   
+ G6         :  4   S:644   
+ C22 C26    :  3           
+ D          :  3           
+ (Other)    :186           
+
+> stepwise(GLM.2, direction='forward', criterion='AIC')
+
+> influencePlot(GLM.2)
+       StudRes         Hat     CookD
+72  -0.8255831 0.056299197 0.0702033
+262  2.3555759 0.013191437 0.1921840
+298 -2.7967321 0.003089946 0.1682767
+
+> library(effects, pos=4)
+
+> trellis.device(theme="col.whitebg")
+
+> plot(allEffects(GLM.2), ask=FALSE)
+
+> vif(GLM.2)
+     age   pclass      sex    sibsp 
+1.430485 1.407082 1.122378 1.143103 
+
+> library(aplpack, pos=4)
+
+> .Table <- table(train$embarked)
+
+> .Table  # counts for embarked
+
+      C   Q   S 
+  2 168  77 644 
+
+> round(100*.Table/sum(.Table), 2)  # percentages for embarked
+
+          C     Q     S 
+ 0.22 18.86  8.64 72.28 
+
+> .Table <- table(train$sex)
+
+> .Table  # counts for sex
+
+female   male 
+   314    577 
+
+> round(100*.Table/sum(.Table), 2)  # percentages for sex
+
+female   male 
+ 35.24  64.76 
+
+> remove(.Table)
+
+> sapply(train, function(x)(sum(is.na(x)))) # NA counts
+survived   pclass     name      sex      age    sibsp    parch   ticket     fare    cabin 
+       0        0        0        0      177        0        0        0        0        0 
+embarked 
+       0 
+
+> library(Hmisc, pos=4)
+
+> rcorr.adjust(train[,c("age","fare","parch","pclass","sibsp","survived")], type="pearson")
+           age  fare parch pclass sibsp survived
+age       1.00  0.10 -0.19  -0.37 -0.31    -0.08
+fare      0.10  1.00  0.21  -0.55  0.14     0.27
+parch    -0.19  0.21  1.00   0.03  0.38     0.09
+pclass   -0.37 -0.55  0.03   1.00  0.07    -0.36
+sibsp    -0.31  0.14  0.38   0.07  1.00    -0.02
+survived -0.08  0.27  0.09  -0.36 -0.02     1.00
+
+n= 714 
+
+
+P
+         age    fare   parch  pclass sibsp  survived
+age             0.0102 0.0000 0.0000 0.0000 0.0391  
+fare     0.0102        0.0000 0.0000 0.0002 0.0000  
+parch    0.0000 0.0000        0.4932 0.0000 0.0126  
+pclass   0.0000 0.0000 0.4932        0.0725 0.0000  
+sibsp    0.0000 0.0002 0.0000 0.0725        0.6433  
+survived 0.0391 0.0000 0.0126 0.0000 0.6433         
+
+ Adjusted p-values (Holm's method)
+         age    fare   parch  pclass sibsp  survived
+age             0.0613 0.0000 0.0000 0.0000 0.1565  
+fare     0.0613        0.0000 0.0000 0.0015 0.0000  
+parch    0.0000 0.0000        0.9865 0.0000 0.0631  
+pclass   0.0000 0.0000 0.9865        0.2176 0.0000  
+sibsp    0.0000 0.0015 0.0000 0.2176        0.9865  
+survived 0.1565 0.0000 0.0631 0.0000 0.9865         
+
+> GLM.3 <- glm(survived ~ age + parch + 
++   sibsp, family=binomial(logit), data=train)
+
+> summary(GLM.3)
+
+Call:
+glm(formula = survived ~ age + parch + sibsp, family = binomial(logit), 
+    data = train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.5424  -1.0210  -0.9197   1.3208   1.6459  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)   
+(Intercept) -0.049463   0.203005  -0.244  0.80750   
+age         -0.011853   0.005666  -2.092  0.03644 * 
+parch        0.262479   0.098564   2.663  0.00774 **
+sibsp       -0.189130   0.093869  -2.015  0.04392 * 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 964.52  on 713  degrees of freedom
+Residual deviance: 951.57  on 710  degrees of freedom
+  (177 observations deleted due to missingness)
+AIC: 959.57
+
+Number of Fisher Scoring iterations: 4
+
+
+> anova(GLM.3, GLM.2, test="Chisq")
+Analysis of Deviance Table
+
+Model 1: survived ~ age + parch + sibsp
+Model 2: survived ~ age + pclass + sex + sibsp
+  Resid. Df Resid. Dev Df Deviance  Pr(>Chi)    
+1       710     951.57                          
+2       709     636.72  1   314.85 < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+> train$fitted.GLM.2 <- fitted(GLM.2)
+
+> train$residuals.GLM.2 <- residuals(GLM.2)
+
+> train$rstudent.GLM.2 <- rstudent(GLM.2)
+
+> train$hatvalues.GLM.2 <- hatvalues(GLM.2)
+
+> train$cooks.distance.GLM.2 <- cooks.distance(GLM.2)
+
+> train$obsNumber <- 1:nrow(train)
+
+> showData(train, placement='-20+200', font=getRcmdr('logFont'), maxwidth=80, maxheight=30, 
++   suppress.X11.warnings=FALSE)
+
+> trellis.device(theme="col.whitebg")
+
+> plot(allEffects(GLM.2), ask=FALSE)
+
+> trellis.device(theme="col.whitebg")
+
+> plot(allEffects(GLM.3), ask=FALSE)
+
+> names(train)
+ [1] "survived"             "pclass"               "name"                 "sex"                 
+ [5] "age"                  "sibsp"                "parch"                "ticket"              
+ [9] "fare"                 "cabin"                "embarked"             "fitted.GLM.2"        
+[13] "residuals.GLM.2"      "rstudent.GLM.2"       "hatvalues.GLM.2"      "cooks.distance.GLM.2"
+[17] "obsNumber"           
+
+> fix(train)
+
+> load("/home/jesus/devel/bitbucket/introdatascience/peer_review-kaggle_titanic/train.RData")
+
+> showData(train, placement='-20+200', font=getRcmdr('logFont'), maxwidth=80, maxheight=30, 
++   suppress.X11.warnings=FALSE)
+
+> train$lived <- factor(train$survived, labels=c('no','yes'))
+
+> MLM.3 <- multinom(lived ~ parch + pclass + age + embarked + fare + sex + sibsp, data=train, 
++   trace=FALSE)
+
+> summary(MLM.3, cor=FALSE, Wald=TRUE)
+
+> trellis.device(theme="col.whitebg")
+
+> plot(allEffects(MLM.3), ask=FALSE)
+
+> GLM.4 <- glm(lived ~ age + embarked + fare + parch + pclass + sex + sibsp, 
++   family=poisson(identity), data=train)
+
+> summary(GLM.4)
+   Length     Class      Mode 
+        1 try-error character 
+
+> GLM.4 <- glm(lived ~ age + embarked + fare + parch + pclass + sex + sibsp, 
++   family=binomial(logit), data=train)
+
+> summary(GLM.4)
+
+Call:
+glm(formula = lived ~ age + embarked + fare + parch + pclass + 
+    sex + sibsp, family = binomial(logit), data = train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7233  -0.6439  -0.3772   0.6288   2.4457  
+
+Coefficients:
+                Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    17.894850 607.855474   0.029  0.97651    
+age            -0.043350   0.008232  -5.266 1.39e-07 ***
+embarked[T.C] -12.257443 607.855250  -0.020  0.98391    
+embarked[T.Q] -13.080988 607.855453  -0.022  0.98283    
+embarked[T.S] -12.658656 607.855228  -0.021  0.98339    
+fare            0.001432   0.002531   0.566  0.57165    
+parch          -0.060270   0.123900  -0.486  0.62666    
+pclass         -1.199251   0.164619  -7.285 3.22e-13 ***
+sex[T.male]    -2.638476   0.222256 -11.871  < 2e-16 ***
+sibsp          -0.363208   0.129017  -2.815  0.00487 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 964.52  on 713  degrees of freedom
+Residual deviance: 632.34  on 704  degrees of freedom
+  (177 observations deleted due to missingness)
+AIC: 652.34
+
+Number of Fisher Scoring iterations: 13
+
+
+> GLM.5 <- glm(lived ~ age + pclass + sex + sibsp, 
++   family=binomial(logit), data=train)
+
+> summary(GLM.5)
+
+Call:
+glm(formula = lived ~ age + pclass + sex + sibsp, family = binomial(logit), 
+    data = train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7714  -0.6445  -0.3836   0.6276   2.4585  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  5.600846   0.543441  10.306  < 2e-16 ***
+age         -0.044385   0.008155  -5.442 5.26e-08 ***
+pclass      -1.317398   0.140900  -9.350  < 2e-16 ***
+sex[T.male] -2.623483   0.214524 -12.229  < 2e-16 ***
+sibsp       -0.376119   0.121080  -3.106  0.00189 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 964.52  on 713  degrees of freedom
+Residual deviance: 636.72  on 709  degrees of freedom
+  (177 observations deleted due to missingness)
+AIC: 646.72
+
+Number of Fisher Scoring iterations: 5
+
+
+> trellis.device(theme="col.whitebg")
+
+> plot(allEffects(GLM.5), ask=FALSE)
+
+> boxplot(fare~lived, ylab="fare", xlab="lived", data=train)
+
+> tapply(train$fare, list(lived=train$lived), mean, na.rm=TRUE)
+lived
+      no      yes 
+22.11789 48.39541 
+
+> library(abind, pos=4)
+
+> library(e1071, pos=4)
+
+> numSummary(train[,"fare"], groups=train$lived, statistics=c("mean", "sd", "quantiles", "cv"), 
++   quantiles=c(0,.25,.5,.75,1))
+        mean       sd       cv 0%     25%  50% 75%     100% data:n
+no  22.11789 31.38821 1.419132  0  7.8542 10.5  26 263.0000    549
+yes 48.39541 66.59700 1.376102  0 12.4750 26.0  57 512.3292    342
+
+> train$farelvl <- with(train, fare < 100)
+
+> GLM.6 <- glm(lived ~ age + pclass + sex + sibsp + farelvl, 
++   family=binomial(logit), data=train)
+
+> summary(GLM.6)
+
+Call:
+glm(formula = lived ~ age + pclass + sex + sibsp + farelvl, family = binomial(logit), 
+    data = train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7161  -0.6469  -0.3804   0.6210   2.4667  
+
+Coefficients:
+                 Estimate Std. Error z value Pr(>|z|)    
+(Intercept)      5.470749   0.603161   9.070  < 2e-16 ***
+age             -0.044853   0.008224  -5.454 4.92e-08 ***
+pclass          -1.343595   0.151605  -8.862  < 2e-16 ***
+sex[T.male]     -2.631755   0.215396 -12.218  < 2e-16 ***
+sibsp           -0.374117   0.121108  -3.089  0.00201 ** 
+farelvl[T.TRUE]  0.216871   0.453096   0.479  0.63219    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 964.52  on 713  degrees of freedom
+Residual deviance: 636.49  on 708  degrees of freedom
+  (177 observations deleted due to missingness)
+AIC: 648.49
+
+Number of Fisher Scoring iterations: 5
+
+
+> boxplot(fare~sex, ylab="fare", xlab="sex", data=train)
+
+> Hist(train$fare, scale="frequency", breaks="Sturges", col="darkgray")
+
+> matplot(train$fare, train[, c("pclass")], type="b", lty=1, ylab="pclass", pch=1)
+
+> scatterplot(pclass~fare | lived, reg.line=lm, smooth=TRUE, spread=TRUE, boxplots='xy', 
++   span=0.5, jitter=list(x=1, y=1), by.groups=TRUE, data=train)
+
+> scatterplot(pclass~fare | lived, reg.line=FALSE, smooth=FALSE, spread=TRUE, boxplots='xy', 
++   span=0.5, jitter=list(x=1, y=1), by.groups=FALSE, data=train)
+
+> scatterplot(age~fare | lived, reg.line=FALSE, smooth=FALSE, spread=TRUE, boxplots='xy', 
++   span=0.5, jitter=list(x=1, y=1), by.groups=FALSE, data=train)
+
+> scatterplotMatrix(~age+fare+parch+pclass+sibsp | lived, reg.line=lm, smooth=TRUE, 
++   spread=FALSE, span=0.5, diagonal= 'boxplot', by.groups=TRUE, data=train)
+
+> showData(train, placement='-20+200', font=getRcmdr('logFont'), maxwidth=80, maxheight=30, 
++   suppress.X11.warnings=FALSE)
+

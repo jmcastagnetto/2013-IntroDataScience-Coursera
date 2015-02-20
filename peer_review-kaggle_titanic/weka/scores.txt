@@ -1,0 +1,2 @@
+(1) REPTree: 0.78469
+(2) Bagging with J48: 0.76555

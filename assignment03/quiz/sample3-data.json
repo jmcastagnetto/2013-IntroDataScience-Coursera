@@ -1,0 +1,10 @@
+ { 'Apples':3, 'Bananas':5, 'Cherries':7 } 
+ { 'Apples':7, 'Bananas':5, 'Cherries':3 } 
+ { 'Apples':5, 'Bananas':4, 'Cherries':6 } 
+ { 'Apples':5, 'Bananas':6, 'Cherries':4 } 
+ { 'Apples':9, 'Bananas':8, 'Cherries':5 } 
+ { 'Apples':1, 'Bananas':2, 'Cherries':5 } 
+ { 'Apples':6, 'Bananas':1, 'Cherries':8 } 
+ { 'Apples':4, 'Bananas':9, 'Cherries':2 } 
+ { 'Apples':2, 'Bananas':7, 'Cherries':1 } 
+ { 'Apples':8, 'Bananas':3, 'Cherries':9 }
